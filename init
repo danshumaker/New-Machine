@@ -14,7 +14,18 @@ echo "=========================================================="
 echo "   Denver Developer Environment New Machine Onboarding"
 echo "=========================================================="
 
-# 1. Install Homebrew if not already installed
+# 1. Install Xcode Command Line Tools if not already installed
+if ! xcode-select -p >/dev/null 2>&1; then
+  echo -e "\nInstalling Xcode Command Line Tools..."
+  touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+  PROD=$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 | awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')
+  if [[ -n "$PROD" ]]; then
+    sudo softwareupdate -i "$PROD" --verbose
+  fi
+  rm -f /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+fi
+
+# 2. Install Homebrew if not already installed
 if ! command -v brew >/dev/null 2>&1; then
   echo -e "\n[1/5] Installing Homebrew..."
   NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -44,7 +55,14 @@ eval $(op signin)
 
 # 4. Authenticate GitHub CLI via 1Password Token
 echo -e "\n[4/5] Retrieving GitHub Access Token and authenticating GitHub CLI..."
-op read "op://Shumaker-Shared/github.com/GH_TOKEN" | gh auth login -p ssh --with-token
+op read "op://Shumaker-Shared/github.com/GH_TOKEN" | gh auth login -p https --with-token
+
+# Verify GitHub CLI is authenticated before proceeding
+if ! gh auth status >/dev/null 2>&1; then
+  echo "Error: GitHub CLI authentication failed! Cannot proceed to cloning." >&2
+  exit 1
+fi
+echo "GitHub CLI authenticated successfully!"
 
 # 5. Clone and Launch Denver UI
 echo -e "\n[5/5] Cloning private homebrew-denver repository..."
