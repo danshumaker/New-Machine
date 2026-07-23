@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Denver Developer Environment Bootstrapper
+# This script resolves the chicken-and-egg bootstrapping issue on brand-new computers.
+# It installs Homebrew, retrieves your credentials from 1Password, logins to GitHub CLI,
+# clones your private homebrew-denver repo, and executes the main installer.
+#
+# Usage:
+#   1. Open macOS Terminal (not Kitty).
+#   2. Copy and run this script to bootstrap your new machine.
+
+set -e
+
+echo "=========================================================="
+echo "   Denver Developer Environment New Machine Onboarding"
+echo "=========================================================="
+
+# 1. Install Homebrew if not already installed
+if ! command -v brew >/dev/null 2>&1; then
+  echo -e "\n[1/5] Installing Homebrew..."
+  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  
+  # Load Homebrew environment into the current shell
+  if [[ -f "/opt/homebrew/bin/brew" ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [[ -f "/usr/local/bin/brew" ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
+else
+  echo -e "\n[1/5] Homebrew is already installed."
+fi
+
+# 2. Install 1Password and GitHub CLIs
+echo -e "\n[2/5] Installing 1Password CLI and GitHub CLI via Homebrew..."
+brew install 1password-cli gh
+
+# 3. Authenticate 1Password
+echo -e "\n[3/5] Setting up 1Password CLI..."
+echo "Please sign in to your 1Password account."
+op account add --address my.1password.com --email danpshumaker@gmail.com --signin
+
+# Prompt user to perform initial sign-in so we can read tokens
+echo "Signing in to 1Password to authorize token retrieval..."
+eval $(op signin)
+
+# 4. Authenticate GitHub CLI via 1Password Token
+echo -e "\n[4/5] Retrieving GitHub Access Token and authenticating GitHub CLI..."
+op read "op://Shumaker-Shared/github.com/GH_TOKEN" | gh auth login -p ssh --with-token
+
+# 5. Clone and Launch Denver UI
+echo -e "\n[5/5] Cloning private homebrew-denver repository..."
+if [[ ! -d "homebrew-denver" ]]; then
+  gh repo clone danshumaker/homebrew-denver
+fi
+
+echo -e "\n=========================================================="
+echo "   Bootstrapping Complete! Handing over to Denver UI..."
+echo "=========================================================="
+cd homebrew-denver
+./ui
