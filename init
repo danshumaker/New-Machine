@@ -56,4 +56,4 @@ echo -e "\n=========================================================="
 echo "   Bootstrapping Complete! Handing over to Denver UI..."
 echo "=========================================================="
 cd homebrew-denver
-./ui
+./install
