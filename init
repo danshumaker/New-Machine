@@ -58,16 +58,18 @@ echo -e "\n[4/5] Retrieving GitHub Access Token and authenticating GitHub CLI...
 op read "op://Shumaker-Shared/github.com/GH_TOKEN" | gh auth login -p https --with-token
 
 # Verify GitHub CLI is authenticated before proceeding
-if ! gh auth status >/dev/null 2>&1; then
+if ! gh auth status; then
   echo "Error: GitHub CLI authentication failed! Cannot proceed to cloning." >&2
   exit 1
 fi
-echo "GitHub CLI authenticated successfully!"
 
 # 5. Clone and Launch Denver UI
 echo -e "\n[5/5] Cloning private homebrew-denver repository..."
 if [[ ! -d "homebrew-denver" ]]; then
+  set -x
   gh repo clone danshumaker/homebrew-denver
+  # GH_TOKEN=$(op read "op://Shumaker-Shared/github.com/GH_TOKEN")
+  # git clone https://x-access-token:${GH_TOKEN}@github.com/danshumaker/homebrew-denver.git
 fi
 
 echo -e "\n=========================================================="
