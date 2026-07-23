@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Denver Developer Environment Bootstrapper
+# Developer Environment Bootstrapper
 # This script resolves the chicken-and-egg bootstrapping issue on brand-new computers.
 # It installs Homebrew, retrieves your credentials from 1Password, logins to GitHub CLI,
-# clones your private homebrew-denver repo, and executes the main installer.
+# clones your private devenv repo, and executes the main installer.
 #
 # Usage:
 #   1. Open macOS Terminal (not Kitty).
-#   2. Copy and run this script to bootstrap your new machine.
+#   2. Copy and run the curl command from the README to start this script.
 
 set -e
 
 echo "=========================================================="
-echo "   Denver Developer Environment New Machine Onboarding"
+echo "   New Machine Dev Environment Setup"
 echo "=========================================================="
 
 # 1. Install Xcode Command Line Tools if not already installed
@@ -29,7 +29,7 @@ fi
 if ! command -v brew >/dev/null 2>&1; then
   echo -e "\n[1/5] Installing Homebrew..."
   NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  
+
   # Load Homebrew environment into the current shell
   if [[ -f "/opt/homebrew/bin/brew" ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -63,17 +63,17 @@ if ! gh auth status; then
   exit 1
 fi
 
-# 5. Clone and Launch Denver UI
-echo -e "\n[5/5] Cloning private homebrew-denver repository..."
-if [[ ! -d "homebrew-denver" ]]; then
+# 5. Clone and Launch devenv UI
+echo -e "\n[5/5] Cloning private homebrew-devenv repository..."
+if [[ ! -d "devenv" ]]; then
   set -x
-  gh repo clone danshumaker/homebrew-denver
+  gh repo clone danshumaker/devenv
   # GH_TOKEN=$(op read "op://Shumaker-Shared/github.com/GH_TOKEN")
-  # git clone https://x-access-token:${GH_TOKEN}@github.com/danshumaker/homebrew-denver.git
+  # git clone https://x-access-token:${GH_TOKEN}@github.com/danshumaker/homebrew-devenv.git
 fi
 
 echo -e "\n=========================================================="
-echo "   Bootstrapping Complete! Handing over to Denver UI..."
+echo "   Bootstrapping Complete! Handing over to Devenv Install..."
 echo "=========================================================="
-cd homebrew-denver
+cd devenv
 ./install
