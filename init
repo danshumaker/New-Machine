@@ -64,9 +64,8 @@ if ! gh auth status; then
 fi
 
 # 5. Clone and Launch devenv UI
-echo -e "\n[5/5] Cloning private homebrew-devenv repository..."
+echo -e "\n[5/5] Cloning private devenv repository..."
 if [[ ! -d "devenv" ]]; then
-  set -x
   gh repo clone danshumaker/devenv
   # GH_TOKEN=$(op read "op://Shumaker-Shared/github.com/GH_TOKEN")
   # git clone https://x-access-token:${GH_TOKEN}@github.com/danshumaker/homebrew-devenv.git
